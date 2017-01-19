@@ -22,7 +22,7 @@ EOF
 
 if [ -z ${DH_SIZE+x} ]
 then
-  >&2 echo ">> no \$DH_SIZE specified using default" 
+  >&2 echo ">> no \$DH_SIZE specified using default"
   DH_SIZE="2048"
 fi
 
@@ -39,6 +39,12 @@ then
   openssl dhparam -out "$DH" $DH_SIZE
 fi
 
+if [ -n "$NGINX_SSL_CERT" ] && [ -n "$NGINX_SSL_KEY" ]
+then
+  echo $NGINX_SSL_CERT >/etc/nginx/external/cert.pem
+  echo $NGINX_SSL_KEY >/etc/nginx/external/key.pem
+fi
+
 if [ ! -e "/etc/nginx/external/cert.pem" ] || [ ! -e "/etc/nginx/external/key.pem" ]
 then
   echo ">> generating self signed cert"
@@ -53,17 +59,7 @@ echo ">> copy /etc/nginx/external/*.conf files to /etc/nginx/conf.d/"
 cp /etc/nginx/external/*.conf /etc/nginx/conf.d/ 2> /dev/null > /dev/null
 
 
-
-
-
-
-
-
-
-
-
-
-if [ ! -e "/piwik/config/TPLconfig.ini.php" ] 
+if [ ! -e "/piwik/config/TPLconfig.ini.php" ]
 then
   cp /piwik/config/config.ini.php /piwik/config/TPLconfig.ini.php
 fi
@@ -138,11 +134,11 @@ sed -i "s/PIWIK_MYSQL_PREFIX/$PIWIK_MYSQL_PREFIX/g" /piwik/config/config.ini.php
 
 if [ -z ${PIWIK_RELATIVE_URL_ROOT+x} ]
 then
-  PIWIK_RELATIVE_URL_ROOT="/piwik/" 
+  PIWIK_RELATIVE_URL_ROOT="/piwik/"
 fi
 
 echo ">> making piwik available beneath: $PIWIK_RELATIVE_URL_ROOT"
-mkdir -p "/usr/share/nginx/$PIWIK_RELATIVE_URL_ROOT" 
+mkdir -p "/usr/share/nginx/$PIWIK_RELATIVE_URL_ROOT"
 
 
   # adding softlink for nginx connection
@@ -158,7 +154,7 @@ mkdir -p "/usr/share/nginx/$PIWIK_RELATIVE_URL_ROOT"
 
 
 
-echo 
+echo
 echo ">> #####################"
 echo ">> init piwik"
 echo ">> #####################"
@@ -179,23 +175,23 @@ then
     PIWIK_ADMIN="admin"
     echo ">> piwik admin user: $PIWIK_ADMIN"
   fi
-  
+
   if [ -z ${PIWIK_ADMIN_PASSWORD+x} ]
   then
     PIWIK_ADMIN_PASSWORD=`perl -e 'my @chars = ("A".."Z", "a".."z"); my $string; $string .= $chars[rand @chars] for 1..10; print $string;'`
     echo ">> generated piwik admin password: $PIWIK_ADMIN_PASSWORD"
   fi
-  
+
   if [ -z ${PIWIK_SUBSCRIBE_NEWSLETTER+x} ]
   then
     PIWIK_SUBSCRIBE_NEWSLETTER=0
   fi
-  
+
   if [ -z ${PIWIK_SUBSCRIBE_PRO_NEWSLETTER+x} ]
   then
     PIWIK_SUBSCRIBE_PRO_NEWSLETTER=0
   fi
-  
+
   if [ -z ${PIWIK_ADMIN_MAIL+x} ]
   then
     PIWIK_ADMIN_MAIL="no@no.tld"
@@ -207,17 +203,17 @@ then
   then
     SITE_NAME="My local Website"
   fi
-  
+
   if [ -z ${SITE_URL+x} ]
   then
     SITE_URL="http://localhost"
   fi
-  
+
   if [ -z ${SITE_TIMEZONE+x} ]
   then
     SITE_TIMEZONE="America/Montreal"
   fi
-  
+
   if [ -z ${SITE_ECOMMERCE+x} ]
   then
     SITE_ECOMMERCE=0
@@ -227,7 +223,7 @@ then
   then
     ANONYMISE_IP=1
   fi
-  
+
   if [ -z ${DO_NOT_TRACK+x} ]
   then
     DO_NOT_TRACK=1
@@ -241,7 +237,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #2 open system check"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=systemCheck&trackerStatus=0" \
@@ -249,7 +245,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #3 open database settings"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=databaseSetup&trackerStatus=0&clientProtocol=https" \
@@ -257,7 +253,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #4 store database settings"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=databaseSetup&trackerStatus=0&clientProtocol=https" \
@@ -275,7 +271,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #5 open piwik settings"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=setupSuperUser&trackerStatus=0&clientProtocol=https&module=Installation" \
@@ -283,7 +279,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #6 store piwik settings"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=setupSuperUser&trackerStatus=0&clientProtocol=https&module=Installation" \
@@ -302,7 +298,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #7 store piwik site settings"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=firstWebsiteSetup&trackerStatus=0&clientProtocol=https&module=Installation" \
@@ -319,7 +315,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
   echo ">> piwik wizard: #8 skip js page"
 
   curl --insecure https://localhost$PIWIK_RELATIVE_URL_ROOT"index.php?action=finished&trackerStatus=0&clientProtocol=https&module=Installation&site_idSite=1&site_name=default" -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-US,en;q=0.8,de;q=0.6' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Referer: https://localhost/piwik/index.php?action=trackingCode&trackerStatus=0&clientProtocol=https&module=Installation&site_idSite=1&site_name=justabot' -H 'Cookie: pma_lang=en; pma_collation_connection=utf8_general_ci; pma_mcrypt_iv=n%2Bxpbn2a%2Btg%3D; pmaUser-1=L60fYDVIaz0%3D' -H 'Connection: keep-alive' --compressed \
@@ -341,7 +337,7 @@ then
   2> /dev/null | grep " % Done"
 
   sleep 5
-  
+
 fi
 
 echo ">> update CorePlugins"
@@ -349,7 +345,7 @@ curl http://localhost$PIWIK_RELATIVE_URL_ROOT\index.php?updateCorePlugins=1 \
 2> /dev/null | grep " % Done"
 
 sleep 2
-  
+
 killall nginx
 
 cat <<EOF
