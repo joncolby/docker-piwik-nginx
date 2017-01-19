@@ -27,7 +27,7 @@ ADD basic.conf /etc/nginx/conf.d/basic.conf
 ADD ssl.conf /etc/nginx/conf.d/ssl.conf
 
 
-    
+
 # fix pathinfo see: (https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-ubuntu-14-04)
 RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php5/fpm/php.ini
 
@@ -39,14 +39,15 @@ RUN rm -rf /usr/share/nginx/html/*
 ADD nginx-piwik.conf /etc/nginx/conf.d/nginx-piwik.conf
 
 # download piwik
-RUN curl -O "http://builds.piwik.org/piwik.zip"
+RUN curl -O "http://builds.piwik.org/piwik-latest.zip"
 
 # unarchive piwik
-RUN unzip piwik.zip
+RUN unzip piwik-latest.zip
 
 ADD entrypoint.sh /opt/entrypoint.sh
 RUN chmod a+x /opt/entrypoint.sh
 
+RUN mkdir -m 777 /piwikconfig/
 
 # add piwik config
 ADD config.ini.php /piwik/config/config.ini.php
