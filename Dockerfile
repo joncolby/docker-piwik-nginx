@@ -12,6 +12,7 @@ RUN apt-get update; apt-get install -y \
     php5-mysql \
     php5-gd \
     php5-geoip \
+    vim \
     php-apc \
     curl \
     zip
@@ -27,10 +28,8 @@ ADD basic.conf /etc/nginx/conf.d/basic.conf
 ADD ssl.conf /etc/nginx/conf.d/ssl.conf
 
 
-
 # fix pathinfo see: (https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-ubuntu-14-04)
 RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php5/fpm/php.ini
-
 
 # clean http directory
 RUN rm -rf /usr/share/nginx/html/*
